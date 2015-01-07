@@ -10,6 +10,6 @@ if SERVER then
 	AddCSLuaFile 'includes/modules/netstream.lua'
 	AddCSLuaFile 'includes/modules/pstructs.lua'
 	AddCSLuaFile 'includes/modules/pcolor.lua'
-	AddCSLuaFile 'includes/modules/pcolor.lua'
+	AddCSLuaFile 'includes/modules/pdraw.lua'
 	AddCSLuaFile 'includes/modules/benchmark.lua'
 end
