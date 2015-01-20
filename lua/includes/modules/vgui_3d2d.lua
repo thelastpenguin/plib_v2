@@ -69,7 +69,6 @@ do
 			if hovered then
 				hovered.IsHovered = xfn_true;
 				hovered.Hovered = true;
-				print( hovered );
 				(hovered.OnCursorEntered or xfn.nothing)( hovered );
 			end
 			self.hoveredPanel = hovered;
