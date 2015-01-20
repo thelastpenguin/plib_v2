@@ -99,3 +99,9 @@ function xfn.table.indexOf(tbl, value)
 		end
 	end
 end
+
+function xfn.fn_const(val)
+	return function()
+		return val
+	end
+end
