@@ -47,6 +47,9 @@ class Db
 			dprint('started new db connection with hash: '..@hash)
 
 			@connect!
+	nullify: (err) =>
+		@query = =>
+			error 'database connection failed. err: '..err
 
 	connect_resume: (db) =>
 		@hash = db.hash
@@ -80,11 +83,13 @@ class Db
 		query\setOption( mysqloo.OPTION_INTERPRET_DATA )
 		query\start!
 		return query
+		
 	query_ex: (sqlstr, options, callback) =>
 		query_buffer = {}
 		last = 0
 		count = 1
 		mysql = @db -- bit of a performance boost
+		
 		while true 
 			next = sqlstr\find('?', last+1)
 			break if not next

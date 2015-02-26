@@ -1,12 +1,81 @@
-pmysql = pmysql or { }
+ezsqloo = ezsqloo or { }
 require('mysqloo')
+require('dprint')
+require('xfn')
+local mysqloo = mysqloo
 local tostring, string, unpack, type
 do
   local _obj_0 = _G
   tostring, string, unpack, type = _obj_0.tostring, _obj_0.string, _obj_0.unpack, _obj_0.type
 end
+local pairs, ipairs, table
+do
+  local _obj_0 = _G
+  pairs, ipairs, table = _obj_0.pairs, _obj_0.ipairs, _obj_0.table
+end
+local formatValue, formatTableElement, escapeColumn
+local formatters = { }
+formatValue = function(val, db, noParens)
+  return formatters[type(val)](val, db, noParens)
+end
+formatters['number'] = function(val, db)
+  return tostring(val)
+end
+formatters['string'] = function(val, db)
+  return '\'' .. db:escape(val) .. '\''
+end
+formatters['table'] = function(val, db, noParens)
+  if val[1] ~= nil then
+    local vals
+    do
+      local _accum_0 = { }
+      local _len_0 = 1
+      for _index_0 = 1, #val do
+        local v = val[_index_0]
+        _accum_0[_len_0] = formatValue(v, db)
+        _len_0 = _len_0 + 1
+      end
+      vals = _accum_0
+    end
+    if noParens then
+      return table.concat(vals, ',')
+    else
+      return '(' .. table.concat(vals, ',') .. ')'
+    end
+  else
+    local vals
+    do
+      local _accum_0 = { }
+      local _len_0 = 1
+      for k, v in pairs(val) do
+        _accum_0[_len_0] = '`' .. k .. '`=' .. formatValue(v, db)
+        _len_0 = _len_0 + 1
+      end
+      vals = _accum_0
+    end
+    return table.concat(vals, ',')
+  end
+end
+formatTableElement = function(db, k, v)
+  local t = type(k)
+  if t == 'number' then
+    local tv = type(v)
+    if tv == 'table' then
+      return '(' .. formatValue(db, v) .. ')'
+    else
+      return formatValue(db, v)
+    end
+  elseif t == 'string' then
+    return '`' .. k .. '`=' .. formatValue(db, v)
+  end
+end
+local formatArguments
+formatArguments = function(db, args)
+  for k, v in ipairs(args) do
+    args[k] = formatValue(v, db, true)
+  end
+end
 local databases = { }
-local dprint = print
 local Db
 do
   local _base_0 = {
@@ -38,19 +107,14 @@ do
         self.db = mysqloo.connect(host, username, password, database, port)
         databases[self.hash] = self.db
         self.db.onConnected = function(self)
-          return MsgC(Color(0, 255, 0), 'pMySQL connected successfully.\n')
+          return MsgC(Color(0, 255, 0), 'ezSQLoo connected successfully.\n')
         end
         self.db.onConnectionFailed = function(self, err)
-          MsgC(Color(255, 0, 0), 'pMySQL connection failed\n')
+          MsgC(Color(255, 0, 0), 'ezSQLoo connection failed\n')
           return error(err)
         end
         dprint('started new db connection with hash: ' .. self.hash)
         return self:connect()
-      end
-    end,
-    nullify = function(self, err)
-      self.query = function(self)
-        return error('database connection failed. err: ' .. err)
       end
     end,
     connect_resume = function(self, db)
@@ -62,13 +126,16 @@ do
       self.db = db.db
     end,
     connect = function(self)
-      MsgC(Color(0, 255, 0), 'pMySQL connecting to database\n')
+      MsgC(Color(0, 255, 0), 'ezSQLoo connecting to database\n')
       local start = SysTime()
       self.db:connect()
       self.db:wait()
-      return MsgC(Color(155, 155, 155), 'pMySQL connect operation complete. took: ' .. (SysTime() - start) .. ' seconds\n')
+      return MsgC(Color(155, 155, 155), 'ezSQLoo connect operation complete. took: ' .. (SysTime() - start) .. ' seconds\n')
     end,
-    query = function(self, sqlstr, callback)
+    escape = function(self, str)
+      return self.db:escape(str)
+    end,
+    _query = function(self, sqlstr, callback)
       local query = self.db:query(sqlstr)
       query.onSuccess = function(self, data)
         if callback then
@@ -90,55 +157,41 @@ do
       query:start()
       return query
     end,
-    query_ex = function(self, sqlstr, options, callback)
-      local query_buffer = { }
-      local last = 0
-      local count = 1
-      local mysql = self.db
-      while true do
-        local next = sqlstr:find('?', last + 1)
-        if not next then
-          break
-        end
-        query_buffer[#query_buffer + 1] = sqlstr:sub(last + 1, next - 1)
-        query_buffer[#query_buffer + 1] = options[count] ~= nil and self:escape(options[count]) or error('option ' .. count .. ' is nil, expected value')
+    query = function(self, sqlstr, ...)
+      local args = {
+        ...
+      }
+      local cback
+      if type(args[#args]) == 'function' then
+        cback = table.remove(args, #args)
+      else
+        cback = xfn.noop
+      end
+      formatArguments(self, args)
+      local count = 0
+      sqlstr = sqlstr:gsub('?', function(match)
         count = count + 1
-        last = next
-      end
-      query_buffer[#query_buffer + 1] = sqlstr:sub(last + 1)
-      local query_str = table.concat(query_buffer)
-      return self:query(query_str, callback)
+        return args[count]
+      end)
+      return self:_query(sqlstr, cback)
     end,
-    query_sync = function(self, sqlstr, options)
-      if options == nil then
-        options = { }
-      end
+    query_sync = function(self, sqlstr, ...)
+      local args = {
+        ...
+      }
+      formatArguments(self, args)
+      local count = 0
+      sqlstr = sqlstr:gsub('?', function(match)
+        count = count + 1
+        return args[count]
+      end)
       local _data, _err
-      local query = self:query_ex(sqlstr, options, function(data, err)
-        _data, _err = data, err
+      local query = self:_query(sqlstr, function(data, err)
+        _data = data
+        _err = err
       end)
       query:wait()
       return _data, _err
-    end,
-    escape = function(self, str)
-      if type(str) == 'string' then
-        return self.db:escape(str)
-      else
-        return self.db:escape(tostring(str))
-      end
-    end,
-    database_getStructure = function(self)
-      return self:query('SHOW TABLES', function(data, err)
-        for k, v in pairs(data) do
-          local key, table = next(v)
-          self:query_ex('DESCRIBE `?` ', {
-            table
-          }, function(data, err)
-            print('table info: ' .. table)
-            return PrintTable(data)
-          end)
-        end
-      end)
     end
   }
   _base_0.__index = _base_0
@@ -165,7 +218,7 @@ do
   _base_0.__class = _class_0
   Db = _class_0
 end
-pmysql.newdb = function(...)
+ezsqloo.newdb = function(...)
   return Db(...)
 end
-pmysql.Db = Db
+ezsqloo.Db = Db

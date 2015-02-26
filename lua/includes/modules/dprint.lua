@@ -10,6 +10,7 @@ local fileColors = {};
 local fileAbbrev = {};
 local MsgC , print = _G.MsgC , _G.print
 
+
 -- auto benchmark
 function dprint(...)
 	local info = debug.getinfo(2)
@@ -47,3 +48,6 @@ function fdebug(name)
 		dprint(...);
 	end
 end
+
+
+

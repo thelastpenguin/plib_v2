@@ -105,3 +105,25 @@ function xfn.fn_const(val)
 		return val
 	end
 end
+
+// function manipulation
+function xfn.fn_partial(fn, ... )
+	local args = {...};
+	return function(...)
+		local inject = {...};
+		local toInject = #inject
+		local params = {};
+		for k,v in pairs(args)do
+			params[k] = v;
+		end
+		local a, b = 1, 1;
+		while( b <= toInject )do
+			if params[a] == nil then
+				params[a] = inject[b];
+				b = b + 1;
+			end
+			a = a + 1;
+		end
+		fn(unpack(params));
+	end
+end
