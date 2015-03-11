@@ -166,8 +166,8 @@ do
     local textW, textH = surface_GetTextSize(font)
     angle.y = ang
     vector.x, vector.y = x, y
-    matrix:SetTranslation(vector)
     matrix:SetAngles(angle)
+    matrix:SetTranslation(vector)
     cam_PushModelMatrix(matrix)
     surface_DrawText(text)
     return cam_PopModelMatrix()

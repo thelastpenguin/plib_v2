@@ -55,6 +55,19 @@ addTestData('Vector array', {
 	Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5),Vector(1,1,1), Vector(1.2,1.4,1.5)
 })
 
+local assocValue = {}
+for i = 1, 20 do
+	assocValue['key'..i] = 'value'..i
+end
+addTestData('Assoc String Array', assocValue)
+
+local assocValue = {}
+for i = 1, 20 do
+	assocValue[i*5] = i/3
+end
+addTestData('Assoc Number Array', assocValue)
+
+
 for i = 1, 1 do
 	for _, testCase in ipairs(testData)do
 		collectgarbage('stop')
