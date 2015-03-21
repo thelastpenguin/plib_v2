@@ -98,7 +98,10 @@ elseif (CLIENT) then
 	end)
 
 	net.Receive('nw.delete', function()
-		nw.Stored[net.ReadUInt(16)][net.ReadString()] = nil
+		local index = net.ReadUInt(16)
+		if (nw.Stored[index] ~= nil) then
+			nw.Stored[index][net.ReadString()] = nil
+		end
 	end)
 
 	hook.Add('InitPostEntity', 'nw.InitPostEntity', function()
