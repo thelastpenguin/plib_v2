@@ -14,4 +14,5 @@ if SERVER then
 	AddCSLuaFile 'includes/modules/benchmark.lua'
 	AddCSLuaFile 'includes/modules/vgui_3d2d.lua'
 	AddCSLuaFile 'includes/modules/pon2.lua'
+	AddCSLuaFile 'includes/modules/nw.lua'
 end
