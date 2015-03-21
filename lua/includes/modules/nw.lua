@@ -15,9 +15,8 @@ local GetFilter
 if (SERVER) then
 	util.AddNetworkString('nw.var')
 	util.AddNetworkString('nw.clear')
-	util.AddNetworkString('nw.ping')
 	util.AddNetworkString('nw.delete')
-
+	util.AddNetworkString('nw.ping')
 
 	function GetFilter(ent, var, value)
 		return (nw.VarFuncs[var] ~= nil and nw.VarFuncs[var].Filter ~= nil) and nw.VarFuncs[var].Filter(ent, var, value) or nil
@@ -42,7 +41,7 @@ if (SERVER) then
 		net.Start('nw.var')
 			net.WriteUInt(index, 16)
 			net.WriteString(var)
-			WriteVar(var, value)
+			net.WriteType(value)
 		net.Send(GetFilter(self, var, value) or player.GetAll())
 	end
 
