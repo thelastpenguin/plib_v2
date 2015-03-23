@@ -1,3 +1,4 @@
+local draw 		= draw
 local surface 	= surface
 local render 	= render
 
@@ -8,8 +9,10 @@ end
 
 function draw.Outline(x, y, w, h, col, thickness)
 	for i = 1, (thickness or 1) do
+		local i = (i - 1)
+		local t = (i * 2)
 		surface.SetDrawColor(col)
-		surface.DrawOutlinedRect(x + (i - 1), y + (i - 1), w - ((i - 1) * 2), h - ((i - 1) * 2))
+		surface.DrawOutlinedRect(x + i, y + i, w - t, h - t)
 	end
 end
 
@@ -33,6 +36,7 @@ function draw.Blur(panel, amount) -- Thanks nutscript
 		surface.DrawTexturedRect(x * -1, y * -1, scrW, scrH)
 	end
 end
+
 
 -- Begin the moonshit
 -- DRAW QUAD
