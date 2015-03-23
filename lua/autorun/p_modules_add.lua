@@ -16,3 +16,5 @@ if SERVER then
 	AddCSLuaFile 'includes/modules/pon2.lua'
 	AddCSLuaFile 'includes/modules/nw.lua'
 end
+
+require 'phooks'

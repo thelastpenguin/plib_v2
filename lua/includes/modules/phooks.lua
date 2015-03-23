@@ -66,18 +66,18 @@ end
 
 local hook_Remove = hook.Remove
 hook.Add = function(name, id, func) 
-	hook_Remove(name, id) -- properly simulate hook overwrite behavior
 
 	if type(id) == 'function' then
 		func = id
 		id = debug_info(func).short_src
 	end
+	hook_Remove(name, id) -- properly simulate hook overwrite behavior
 
 	if type(id) ~= 'string' then
 		local orig = func
 		func = function(...)
 			if IsValid(id) then
-				return orig(...)
+				return orig(id, ...)
 			else
 				hook_Remove(name, id)
 			end
