@@ -3,20 +3,20 @@ if SERVER then
 	AddCSLuaFile()
 end
 
-local oldHooks = hook.GetTable()
+local oldHooks 		= hook.GetTable()
 
-hook = {}
+hook 				= {}
 
-local hook = hook
-local table_remove = table.remove
-local table_copy = table.Copy
-local debug_info = debug.getinfo
-local type = type
-local ipairs = ipairs
-local IsValid = IsValid
+local hook 			= hook
+local table_remove 	= table.remove
+local table_copy 	= table.Copy
+local debug_info 	= debug.getinfo
+local type 			= type
+local ipairs 		= ipairs
+local IsValid 		= IsValid
 
-local hooks = {}
-local mappings = {}
+local hooks 		= {}
+local mappings 		= {}
 
 hook.GetTable = function()
 	return table_copy(mappings)
