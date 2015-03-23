@@ -1,4 +1,6 @@
 pstruct = pstruct or { }
+pstruct = pstruct or {}
+
 pstruct.Stack = function()
   local values = { }
   local top = 0

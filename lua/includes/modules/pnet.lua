@@ -30,7 +30,7 @@ else
     if IsValid(LocalPlayer()) then
       hook.Remove('Think', 'pnet.waitForPlayer')
       net.Start('pnet_Ready')
-      return net.SendToServer()
+      net.SendToServer()
     end
   end)
 end

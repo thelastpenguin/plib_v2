@@ -358,9 +358,6 @@ decoders['Angle'] = function(val)
 end
 
 
-
-
-
 pon2.encode = function(val)
 	cache_size = 0
 	output_len = 1
