@@ -66,6 +66,8 @@ end
 
 local hook_Remove = hook.Remove
 hook.Add = function(name, id, func) 
+	hook_Remove(name, id) -- properly simulate hook overwrite behavior
+
 	if type(id) == 'function' then
 		func = id
 		id = debug_info(func).short_src
