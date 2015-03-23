@@ -38,6 +38,7 @@ end
 
 
 function surface.DrawBoldOutlinedRect(x, y, w, h, _w)
+	if not _w then _w = 1 end
 	surface_DrawRect(			x, 		y, 	w, 		 _w)
 	surface_DrawRect(			x, y+_w, _w, h-_w*2)
 	surface_DrawRect(x+w-_w, y+_w, _w, h-_w*2)
