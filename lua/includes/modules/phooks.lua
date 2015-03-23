@@ -1,44 +1,25 @@
 
+if SERVER then
+	AddCSLuaFile()
+end
+
 local oldHooks = hook.GetTable()
 
 hook = {}
+
+local hook = hook
+local table_remove = table.remove
+local table_copy = table.Copy
+local debug_info = debug.getinfo
+local type = type
+local ipairs = ipairs
+local IsValid = IsValid
 
 local hooks = {}
 local mappings = {}
 
 hook.GetTable = function()
-	return table.Copy(mappings)
-end
-
-hook.Add = function(name, id, func) 
-	if type(id) == 'function' then
-		func = id
-		id = debug.getinfo(func).short_src
-	end
-
-	if type(id) ~= 'string' then
-		local orig = func
-		func = function(...)
-			if IsValid(id) then
-				return orig(...)
-			else
-				hook.Remove(name, id)
-			end
-		end
-	end
-
-	local collection = hooks[name]
-	
-	if collection == nil then
-		collection = {}
-		hooks[name] = collection
-		mappings[name] = {}
-	end
-
-	local mapping = mappings[name]
-
-	collection[#collection+1] = func
-	mapping[id] = func
+	return table_copy(mappings)
 end
 
 hook.Call = function(name, gm, ...) 
@@ -62,8 +43,9 @@ hook.Call = function(name, gm, ...)
 	end
 end
 
+local hook_Call = hook.Call
 hook.Run = function(name, ...)
-	hook.Call(name, GAMEMODE, ...)
+	hook_Call(name, GAMEMODE, ...)
 end
 
 hook.Remove = function(name, id)
@@ -73,13 +55,45 @@ hook.Remove = function(name, id)
 		if func ~= nil then
 			for k,v in ipairs(collection) do
 				if func == v then
-					table.remove(collection, k)
+					table_remove(collection, k)
 					break 
 				end
 			end
 		end
 		mappings[name][id] = nil
 	end
+end
+
+local hook_Remove = hook.Remove
+hook.Add = function(name, id, func) 
+	if type(id) == 'function' then
+		func = id
+		id = debug_info(func).short_src
+	end
+
+	if type(id) ~= 'string' then
+		local orig = func
+		func = function(...)
+			if IsValid(id) then
+				return orig(...)
+			else
+				hook_Remove(name, id)
+			end
+		end
+	end
+
+	local collection = hooks[name]
+	
+	if collection == nil then
+		collection = {}
+		hooks[name] = collection
+		mappings[name] = {}
+	end
+
+	local mapping = mappings[name]
+
+	collection[#collection+1] = func
+	mapping[id] = func
 end
 
 
