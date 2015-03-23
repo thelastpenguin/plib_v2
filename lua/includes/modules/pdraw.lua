@@ -2,23 +2,22 @@ local draw 		= draw
 local surface 	= surface
 local render 	= render
 
+local surface_SetDrawColor = surface.SetDrawColor
+local surface_DrawRect = surface.DrawRect 
+
 function draw.Box(x, y, w, h, col)
-	surface.SetDrawColor(col)
-	surface.DrawRect(x, y, w, h)
+	surface_SetDrawColor(col)
+	surface_DrawRect(x, y, w, h)
 end
 
 function draw.Outline(x, y, w, h, col, thickness)
-	for i = 1, (thickness or 1) do
-		local i = (i - 1)
-		local t = (i * 2)
-		surface.SetDrawColor(col)
-		surface.DrawOutlinedRect(x + i, y + i, w - t, h - t)
-	end
+	surface_SetDrawColor(col)
+	surface.DrawBoldOutlinedRect(x, y, w, h, thickness)
 end
 
 function draw.OutlinedBox(x, y, w, h, col, bordercol, thickness)
-	surface.SetDrawColor(col)
-	surface.DrawRect(x + 1, y + 1, w - 2, h - 2)
+	surface_SetDrawColor(col)
+	surface_DrawRect(x + 1, y + 1, w - 2, h - 2)
 
 	draw.Outline(x, y, w, h, bordercol, thickness)
 end
@@ -38,8 +37,14 @@ function draw.Blur(panel, amount) -- Thanks nutscript
 end
 
 
--- Begin the moonshit
--- DRAW QUAD
+function surface.DrawBoldOutlinedRect(x, y, w, h, _w)
+	surface_DrawRect(			x, 		y, 	w, 		 _w)
+	surface_DrawRect(			x, y+_w, _w, h-_w*2)
+	surface_DrawRect(x+w-_w, y+_w, _w, h-_w*2)
+	surface_DrawRect(     x, h-_w,  w,     _w)
+end
+
+
 do
 	local q = {{},{},{},{}};
 	local q1, q2, q3, q4 = q[1], q[2], q[3], q[4]
@@ -131,6 +136,8 @@ do
 	end
 end
 
+-- Begin the moonshit
+-- DRAW QUAD
 do
 	local cos, sin = math.cos, math.sin ;
 	local ang2rad = 3.141592653589/180
