@@ -1,20 +1,18 @@
 if SERVER then
-	AddCSLuaFile 'includes/modules/pon.lua'
-	AddCSLuaFile 'includes/modules/xfn.lua'
-	AddCSLuaFile 'includes/modules/async.lua'
-	AddCSLuaFile 'includes/modules/rpc.lua'
-	AddCSLuaFile 'includes/modules/pnet.lua'
-	AddCSLuaFile 'includes/modules/pnet_player.lua'
-	AddCSLuaFile 'includes/modules/dprint.lua'
-	AddCSLuaFile 'includes/modules/path.lua'
-	AddCSLuaFile 'includes/modules/netstream.lua'
-	AddCSLuaFile 'includes/modules/pstructs.lua'
-	AddCSLuaFile 'includes/modules/pcolor.lua'
-	AddCSLuaFile 'includes/modules/pdraw.lua'
-	AddCSLuaFile 'includes/modules/benchmark.lua'
-	AddCSLuaFile 'includes/modules/vgui_3d2d.lua'
-	AddCSLuaFile 'includes/modules/pon2.lua'
-	AddCSLuaFile 'includes/modules/nw.lua'
+	local blacklist = {
+		-- Ex: pdraw.lua = true, // No extension needed
+	}
+	
+	MsgN( "[plib] Adding files!" )
+	
+	local files = file.Find( "includes/modules" .. "/*", "LUA" )
+	
+	for _, file in pairs( files ) do
+		local extension = string.GetExtensionFromFilename( file )
+		if ( ( not blacklist[ file ] ) and extension == "lua" ) then
+			AddCSLuaFile( "includes/modules/" .. file )
+		end
+	end
 end
 
 require 'phooks'
