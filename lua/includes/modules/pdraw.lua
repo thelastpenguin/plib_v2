@@ -1,8 +1,40 @@
---[[LICENSE:
-_p_modules\lua\includes\modules\pdraw.luasrc
+local surface 	= surface
+local render 	= render
 
-Copyright 08/24/2014 thelastpenguin
-]]
+function draw.Box(x, y, w, h, col)
+	surface.SetDrawColor(col)
+	surface.DrawRect(x, y, w, h)
+end
+
+function draw.Outline(x, y, w, h, col, thickness)
+	for i = 1, (thickness or 1) do
+		surface.SetDrawColor(col)
+		surface.DrawOutlinedRect(x + (i - 1), y + (i - 1), w - ((i - 1) * 2), h - ((i - 1) * 2))
+	end
+end
+
+function draw.OutlinedBox(x, y, w, h, col, bordercol, thickness)
+	surface.SetDrawColor(col)
+	surface.DrawRect(x + 1, y + 1, w - 2, h - 2)
+
+	draw.Outline(x, y, w, h, bordercol, thickness)
+end
+
+local blur = Material('pp/blurscreen')
+function draw.Blur(panel, amount) -- Thanks nutscript
+	local x, y = panel:LocalToScreen(0, 0)
+	local scrW, scrH = ScrW(), ScrH()
+	surface.SetDrawColor(255, 255, 255)
+	surface.SetMaterial(blur)
+	for i = 1, 3 do
+		blur:SetFloat('$blur', (i / 3) * (amount or 6))
+		blur:Recompute()
+		render.UpdateScreenEffectTexture()
+		surface.DrawTexturedRect(x * -1, y * -1, scrW, scrH)
+	end
+end
+
+-- Begin the moonshit
 -- DRAW QUAD
 do
 	local q = {{},{},{},{}};
